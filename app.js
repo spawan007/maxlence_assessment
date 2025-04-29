@@ -32,12 +32,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(path.resolve(), 'public')));
+app.use('/uploads/profile-images', express.static(path.join(path.resolve(), 'uploads/profile-images')));
 
 app.use('/api', indexRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   next(createError(404));
+});
+
+
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ status: false, message: err.message });
+  } else if (err) {
+    return res.status(500).json({ status: false, message: err.message });
+  }
+  next();
 });
 
 // error handler
